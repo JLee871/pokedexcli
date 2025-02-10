@@ -15,6 +15,7 @@ type cacheEntry struct {
 	entryData []byte
 }
 
+// Creating a New Cache
 func NewCache(interval time.Duration) Cache {
 	c := Cache{
 		cacheData: make(map[string]cacheEntry),
@@ -24,6 +25,7 @@ func NewCache(interval time.Duration) Cache {
 	return c
 }
 
+// Adding data to existing Cache
 func (c *Cache) Add(key string, val []byte) {
 	c.mu.Lock()
 	data := c.cacheData[key]
@@ -33,6 +35,7 @@ func (c *Cache) Add(key string, val []byte) {
 	c.mu.Unlock()
 }
 
+// Getting data from existing Cache
 func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -44,6 +47,7 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 	return nil, false
 }
 
+// Cleans out old data from cache after a certain interval
 func (c *Cache) reapLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 

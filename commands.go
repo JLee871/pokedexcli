@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func commandHelp(c *config) error {
+func commandHelp(c *config, parameter string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println()
@@ -16,13 +16,13 @@ func commandHelp(c *config) error {
 	return nil
 }
 
-func commandExit(c *config) error {
+func commandExit(c *config, parameter string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandMap(c *config) error {
+func commandMap(c *config, parameter string) error {
 	locationsRes, err := c.pokeapiClient.GetLocations(c.Next)
 	if err != nil {
 		return err
@@ -38,7 +38,7 @@ func commandMap(c *config) error {
 	return nil
 }
 
-func commandMapb(c *config) error {
+func commandMapb(c *config, parameter string) error {
 	if c.Previous == nil {
 		return fmt.Errorf("you're on the first page")
 	}
@@ -52,6 +52,22 @@ func commandMapb(c *config) error {
 
 	for _, loc := range locationsRes.Results {
 		fmt.Println(loc.Name)
+	}
+
+	return nil
+}
+
+func commandExplore(c *config, parameter string) error {
+	exploreRes, err := c.pokeapiClient.GetPokemon(parameter)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Exploring %s...\n", exploreRes.Name)
+	fmt.Println("Found Pokemon: ")
+
+	for _, encounters := range exploreRes.PokemonEncounters {
+		fmt.Printf(" - %s\n", encounters.Pokemon.Name)
 	}
 
 	return nil
