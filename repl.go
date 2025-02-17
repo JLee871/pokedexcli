@@ -19,8 +19,10 @@ type config struct {
 	pokeapiClient pokeapi.Client
 	Next          *string
 	Previous      *string
+	Pokedex       map[string]pokeapi.Pokemon
 }
 
+// Commands mapping
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit": {
@@ -48,9 +50,25 @@ func getCommands() map[string]cliCommand {
 			description: "Returns pokemon found at location",
 			callback:    commandExplore,
 		},
+		"catch": {
+			name:        "catch <pokemon name>",
+			description: "Attempts to catch pokemon",
+			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect <pokemon name",
+			description: "shows data on pokemon",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "shows your caught pokemon",
+			callback:    commandPokedex,
+		},
 	}
 }
 
+// Read Eval Print Loop
 func startRepl(c *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
@@ -84,6 +102,7 @@ func startRepl(c *config) {
 	}
 }
 
+// Splits input on whitespace and makes lowercase
 func cleanInput(text string) []string {
 	output := strings.ToLower(text)
 	words := strings.Fields(output)

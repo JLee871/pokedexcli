@@ -1,5 +1,7 @@
 package pokecache
 
+//Cache functionality for pokedexcli
+
 import (
 	"sync"
 	"time"

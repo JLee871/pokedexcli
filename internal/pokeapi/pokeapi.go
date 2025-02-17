@@ -1,5 +1,7 @@
 package pokeapi
 
+//Pokeapi Requests
+
 import (
 	"encoding/json"
 	"fmt"
@@ -11,6 +13,7 @@ const (
 	baseURL = "https://pokeapi.co/api/v2"
 )
 
+// Get a list of locations
 func (c *Client) GetLocations(pageURL *string) (RespLocations, error) {
 	url := baseURL + "/location-area"
 	if pageURL != nil {
@@ -52,9 +55,10 @@ func (c *Client) GetLocations(pageURL *string) (RespLocations, error) {
 	return respLocations, nil
 }
 
-func (c *Client) GetPokemon(parameter string) (RespSingleLocation, error) {
-	url := baseURL + "/location-area/" + parameter
-	if parameter == "" {
+// Get data on a single location
+func (c *Client) GetPokemonInLocation(location string) (RespSingleLocation, error) {
+	url := baseURL + "/location-area/" + location
+	if location == "" {
 		return RespSingleLocation{}, fmt.Errorf("explore requires a location parameter")
 	}
 
@@ -91,4 +95,46 @@ func (c *Client) GetPokemon(parameter string) (RespSingleLocation, error) {
 
 	c.cache.Add(url, data)
 	return respSingleLocation, nil
+}
+
+// Get data on a pokemon
+func (c *Client) GetPokemon(name string) (Pokemon, error) {
+	url := baseURL + "/pokemon/" + name
+	if name == "" {
+		return Pokemon{}, fmt.Errorf("catch requires a pokemon name")
+	}
+
+	if val, ok := c.cache.Get(url); ok {
+		pokemon := Pokemon{}
+		err := json.Unmarshal(val, &pokemon)
+		if err != nil {
+			return Pokemon{}, err
+		}
+		return pokemon, nil
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return Pokemon{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return Pokemon{}, err
+	}
+	defer res.Body.Close()
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return Pokemon{}, err
+	}
+
+	var pokemon Pokemon
+	err = json.Unmarshal(data, &pokemon)
+	if err != nil {
+		return Pokemon{}, err
+	}
+
+	c.cache.Add(url, data)
+	return pokemon, nil
 }

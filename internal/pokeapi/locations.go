@@ -1,5 +1,7 @@
 package pokeapi
 
+//JSON Responses from pokeapi.co
+
 type Location struct {
 	Name string
 	URL  string
